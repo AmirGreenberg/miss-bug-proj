@@ -41,11 +41,13 @@ export function BugFilter({
     }
 
     function handleSortBy({ target }) {
+        setFilterByToEdit((prevFilter) => ({ ...prevFilter, pageIdx: 0 }))
         if (!sortDir) onSetSortDir(1)
         onSetSortBy(target.value)
     }
 
     function handleSortDir({ target }) {
+        setFilterByToEdit((prevFilter) => ({ ...prevFilter, pageIdx: 0 }))
         const DirVal = target.checked ? 1 : -1
         onSetSortDir(DirVal)
     }

@@ -11,18 +11,6 @@
     "_id": "7gpSp8"
   },
   {
-    "title": "descri",
-    "severity": 3,
-    "createdAt": 1703024200000,
-    "description": "bug bug bigolo",
-    "labels": [
-      "fat",
-      "poor",
-      "tall"
-    ],
-    "_id": "EYrHNk"
-  },
-  {
     "title": "dani",
     "severity": 5,
     "createdAt": 170301000000,

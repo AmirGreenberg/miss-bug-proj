@@ -1,5 +1,6 @@
 import fs from 'fs'
 import { utilService } from './utils.service.js'
+import { loggerService } from './logger.service.js'
 
 const PAGE_SIZE = 3
 export const bugService = {
@@ -60,23 +61,41 @@ function getById(bugId) {
     return Promise.resolve(bug)
 }
 
-function remove(bugId) {
-    const bugIdx = bugs.findIndex((bug) => bug._id === bugId)
-    bugs.splice(bugIdx, 1)
+function remove(bugId, loggedinUser) {
+    const idx = bugs.findIndex((bug) => bug._id === bugId)
+    if (idx === -1) return Promise.reject('No Such Bug')
+    const bug = bugs[idx]
+    if (!loggedinUser.isAdmin && bug.owner._id !== loggedinUser._id) {
+        return Promise.reject('Not your bug')
+    }
+    bugs.splice(idx, 1)
     return _saveBugsToFile()
 }
 
-function save(bug) {
+
+function save(bug, loggedinUser) {
     if (bug._id) {
-        const bugIdx = bugs.findIndex((currBug) => currBug._id === bug._id)
-        bugs[bugIdx] = bug
+        const bugToUpdate = bugs.find((currBug) => currBug._id === bug._id)
+        if (
+            !loggedinUser.isAdmin &&
+            bugToUpdate.owner._id !== loggedinUser._id
+        ) {
+            return Promise.reject('Not your bug')
+        }
+        bugToUpdate.title = bug.title
+        bugToUpdate.speed = bug.speed
+        bugToUpdate.createdAt = bug.createdAt
+        bugToUpdate.description = bug.description
+        bugToUpdate.labels = bug.labels
     } else {
         bug._id = utilService.makeId()
+        bug.owner = loggedinUser
         bugs.unshift(bug)
     }
 
     return _saveBugsToFile().then(() => bug)
 }
+
 
 function _saveBugsToFile() {
     return new Promise((resolve, reject) => {

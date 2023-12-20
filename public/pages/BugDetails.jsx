@@ -1,8 +1,8 @@
+import { bugService } from '../services/bug.service.local.js'
+import { showErrorMsg } from '../services/event-bus.service.js'
+
 const { useState, useEffect } = React
 const { useParams, useNavigate, Link } = ReactRouterDOM
-
-import { bugService } from '../services/bug.service.js'
-import { showErrorMsg } from '../services/event-bus.service.js'
 
 export function BugDetails() {
     const [bug, setBug] = useState(null)
@@ -19,8 +19,12 @@ export function BugDetails() {
             .then((bug) => setBug(bug))
             .catch((err) => {
                 showErrorMsg('Cannot load bug')
-                // navigate('/')
+                navigate('/bug')
             })
+    }
+
+    function onBack() {
+        navigate('/bug')
     }
 
     if (!bug) return <h1>Loading....</h1>
@@ -44,7 +48,7 @@ export function BugDetails() {
                         {new Date(bug.createdAt).toString().substring(0, 25)}
                     </span>
                 </p>
-                <Link to="/bug">Back to List</Link>
+                <button onClick={onBack}>Back</button>
             </div>
         )
     )
