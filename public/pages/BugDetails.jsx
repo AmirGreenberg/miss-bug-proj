@@ -24,7 +24,6 @@ export function BugDetails() {
     }
 
     if (!bug) return <h1>Loading....</h1>
-    console.log('🚀  bug:', bug)
     return (
         bug && (
             <div>
@@ -35,6 +34,15 @@ export function BugDetails() {
                 </p>
                 <p>
                     Description: <span>{bug.description}</span>
+                </p>
+                <p>
+                    Labels: <span>{bug.labels.join(', ')}</span>
+                </p>
+                <p>
+                    Created at:{' '}
+                    <span>
+                        {new Date(bug.createdAt).toString().substring(0, 25)}
+                    </span>
                 </p>
                 <Link to="/bug">Back to List</Link>
             </div>

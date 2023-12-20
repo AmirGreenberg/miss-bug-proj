@@ -33,8 +33,7 @@ export function BugFilter({ filterBy, onSetFilter }) {
         setFilterByToEdit((prevFilter) => ({ ...prevFilter, [field]: value }))
     }
 
-    const { title, severity, description } = filterByToEdit
-    console.log('🚀  filterByToEdit:', filterByToEdit)
+    const { title, severity, description, label } = filterByToEdit
     return (
         <section className="bug-filter main-layout full">
             <h2>Filter Our Bugs</h2>
@@ -64,6 +63,15 @@ export function BugFilter({ filterBy, onSetFilter }) {
                     type="text"
                     id="description"
                     name="description"
+                />
+                <br />
+                <label htmlFor="label">Label: </label>
+                <input
+                    value={label || ''}
+                    onChange={handleChange}
+                    type="text"
+                    id="label"
+                    name="label"
                 />
                 <br />
                 <button>Submit</button>

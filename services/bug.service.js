@@ -1,6 +1,7 @@
 import fs from 'fs'
 import { utilService } from './utils.service.js'
 
+const PAGE_SIZE = 3
 export const bugService = {
     query,
     getById,
@@ -10,19 +11,45 @@ export const bugService = {
 
 const bugs = utilService.readJsonFile('data/bug.json')
 
-function query() {
-    return Promise.resolve(bugs)
+function query(filterBy) {
+    let bugsToReturn = bugs
+    if (filterBy.title) {
+        const regExp = new RegExp(filterBy.title, 'i')
+        bugsToReturn = bugsToReturn.filter((bug) => regExp.test(bug.title))
+    }
+    if (filterBy.description) {
+        const regExp = new RegExp(filterBy.description, 'i')
+        bugsToReturn = bugsToReturn.filter((bug) =>
+            regExp.test(bug.description)
+        )
+    }
+    if (filterBy.label) {
+        const regExp = new RegExp(filterBy.label, 'i')
+        bugsToReturn = bugsToReturn.filter((bug) => regExp.test(bug.labels))
+    }
+
+    if (filterBy.severity) {
+        bugsToReturn = bugsToReturn.filter(
+            (bug) => bug.severity >= filterBy.severity
+        )
+    }
+
+    if (filterBy.pageIdx !== undefined) {
+        const startIdx = filterBy.pageIdx * PAGE_SIZE
+        bugsToReturn = bugsToReturn.slice(startIdx, startIdx + PAGE_SIZE)
+    }
+    return Promise.resolve(bugsToReturn)
 }
 
 function getById(bugId) {
-    const bug = bugs.find(bug => bug._id === bugId)
+    const bug = bugs.find((bug) => bug._id === bugId)
     if (!bug) return Promise.reject('Bug dosent exist!')
 
     return Promise.resolve(bug)
 }
 
 function remove(bugId) {
-    const bugIdx = bugs.findIndex(bug => bug._id === bugId)
+    const bugIdx = bugs.findIndex((bug) => bug._id === bugId)
     bugs.splice(bugIdx, 1)
     return _saveBugsToFile()
 }

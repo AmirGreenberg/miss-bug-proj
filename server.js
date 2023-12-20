@@ -18,8 +18,7 @@ app.get('/api/bug', (req, res) => {
         severity: req.query.severity || 0,
         pageIdx: req.query.pageIdx,
         description: req.query.description || '',
-        createdAt: req.query.createdAt || '',
-        labels: req.query.labels || [],
+        label: req.query.label || '',
     }
     bugService
         .query(filterBy)
@@ -35,7 +34,6 @@ app.get('/api/bug', (req, res) => {
 // Get Bug (READ)
 app.get('/api/bug/:id', (req, res) => {
     const bugId = req.params.id
-    console.log('🚀  bugId:', bugId)
 
     ////Limit user to 3 bugs views in, restart every 7 seconds //////
     let visitedCount = req.cookies.visitedCount || '[]'

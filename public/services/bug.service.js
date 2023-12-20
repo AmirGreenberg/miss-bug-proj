@@ -1,5 +1,5 @@
 import { utilService } from './util.service.js'
-import { storageService } from './async-storage.service.js'
+// import { storageService } from './async-storage.service.js'
 
 const BUG_KEY = 'bugDB'
 const BASE_URL = '/api/bug/'
@@ -15,53 +15,45 @@ export const bugService = {
 }
 
 function query(filterBy) {
-    return axios.get(BASE_URL).then(res => res.data)
-        .then(bugs => {
-            if (filterBy.title) {
-                const regExp = new RegExp(filterBy.title, 'i')
-                bugs = bugs.filter(bug => regExp.test(bug.title))
-            }
-            if (filterBy.description) {
-                const regExp = new RegExp(filterBy.description, 'i')
-                bugs = bugs.filter((bug) => regExp.test(bug.description))
-            }
-            if (filterBy.severity) {
-                bugs = bugs.filter((bug) => bug.severity >= filterBy.severity)
-            }
-            return bugs
-        })
+    return axios.get(BASE_URL, { params: filterBy }).then((res) => res.data)
 }
 
 function get(bugId) {
-    return axios.get(BASE_URL + bugId).then(res => res.data)
-    return storageService.get(BUG_KEY, bugId)
+    return axios.get(BASE_URL + bugId).then((res) => res.data)
 }
 
 function remove(bugId) {
-    return axios.get(BASE_URL + bugId + '/remove')
-    return storageService.remove(BUG_KEY, bugId)
+    return axios.delete(BASE_URL + bugId).then((res) => res.data)
 }
 
 function save(bug) {
-    const url = BASE_URL + 'save'
-    let queryParams = `?title=${bug.title}&severity=${bug.severity}&description=${bug.description}`
-    if (bug._id) queryParams += `&_id=${bug._id}`
-    return axios.get(url + queryParams)
-    // if (bug._id) {
-    //     return storageService.put(BUG_KEY, bug)
-    // } else {
-    //     return storageService.post(BUG_KEY, bug)
-    // }
+    if (bug._id) {
+        return axios.put(BASE_URL, bug).then((res) => res.data)
+    } else {
+        return axios.post(BASE_URL, bug).then((res) => res.data)
+    }
 }
 
-function getEmptyBug(title = '', severity = '', description = '') {
-    return { title, severity, description }
+function getEmptyBug(
+    title = '',
+    severity = '',
+    description = '',
+    labels = '',
+    createdAt = Date.now()
+) {
+    return { title, severity, description, labels, createdAt }
 }
 
 function getDefaultFilter() {
-    return { txt: '', title: '', severity: '', description:'' }
+    return {
+        title: '',
+        severity: '',
+        description: '',
+        label: '',
+        createdAt: '',
+        pageIdx: 0,
+    }
 }
-
 
 function _createBugs() {
     let bugs = utilService.loadFromStorage(BUG_KEY)
@@ -70,20 +62,28 @@ function _createBugs() {
             {
                 title: 'Infinite Loop Detected',
                 severity: 4,
+                description: 'Amazing bug',
+                labels: ['handsome', 'tall', ],
                 _id: '1NF1N1T3',
             },
             {
                 title: 'Keyboard Not Found',
                 severity: 3,
+                description: 'bug 2000',
+                labels: ['stupid', 'poor', ],
                 _id: 'K3YB0RD',
             },
             {
                 title: '404 Coffee Not Found',
                 severity: 2,
+                description: 'bug bug bigolo',
+                labels: ['fat', 'poor', 'tall' ],
                 _id: 'C0FF33',
             },
             {
                 title: 'Unexpected Response',
+                description: 'boged',
+                labels: ['loyal', 'handsome', ],
                 severity: 1,
                 _id: 'G0053',
             },
@@ -92,8 +92,7 @@ function _createBugs() {
     }
 }
 
-
-// function _createBug(title, severity = 250, description) {
+// function _createBug(title, severity = 3, description) {
 //     const bug = getEmptyBug(title, severity, description)
 //     bug._id = utilService.makeId()
 //     return bug
