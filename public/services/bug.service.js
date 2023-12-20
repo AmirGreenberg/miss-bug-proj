@@ -94,9 +94,3 @@ function _createBugs() {
         utilService.saveToStorage(BUG_KEY, bugs)
     }
 }
-
-// function _createBug(title, severity = 3, description) {
-//     const bug = getEmptyBug(title, severity, description)
-//     bug._id = utilService.makeId()
-//     return bug
-// }

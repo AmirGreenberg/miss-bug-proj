@@ -64,7 +64,7 @@ export function BugIndex() {
         setFilterBy((prevFilter) => {
             let newPageIdx = prevFilter.pageIdx + diff
             if (newPageIdx < 0) newPageIdx = 0
-            if (newPageIdx > maxPage) newPageIdx = maxPage + 1
+            if (newPageIdx > maxPage) newPageIdx = maxPage
             return { ...prevFilter, pageIdx: newPageIdx }
         })
     }

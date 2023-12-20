@@ -49,6 +49,7 @@ function query(filterBy = {}, sortBy, sortDir) {
         )
     }
     const maxPage = Math.ceil(bugsToReturn.length / PAGE_SIZE)
+    console.log("🚀  maxPage:", maxPage)
     return Promise.resolve({ bugs: bugsToReturn, maxPage })
 }
 
