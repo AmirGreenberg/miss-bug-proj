@@ -1,6 +1,13 @@
 const { useState, useEffect } = React
 
-export function BugFilter({ filterBy, onSetFilter }) {
+export function BugFilter({
+    filterBy,
+    onSetFilter,
+    onSetSortDir,
+    onSetSortBy,
+    sortBy,
+    sortDir,
+}) {
     const [filterByToEdit, setFilterByToEdit] = useState(filterBy)
 
     useEffect(() => {
@@ -31,6 +38,16 @@ export function BugFilter({ filterBy, onSetFilter }) {
         }
 
         setFilterByToEdit((prevFilter) => ({ ...prevFilter, [field]: value }))
+    }
+
+    function handleSortBy({ target }) {
+        if (!sortDir) onSetSortDir(1)
+        onSetSortBy(target.value)
+    }
+
+    function handleSortDir({ target }) {
+        const DirVal = target.checked ? 1 : -1
+        onSetSortDir(DirVal)
     }
 
     const { title, severity, description, label } = filterByToEdit
@@ -73,7 +90,33 @@ export function BugFilter({ filterBy, onSetFilter }) {
                     id="label"
                     name="label"
                 />
+
                 <br />
+                <label htmlFor="sortBy">Sort By:</label>
+                <select
+                    name="sortBy"
+                    id="sortBy"
+                    onChange={handleSortBy}
+                    defaultValue={sortBy}
+                >
+                    <option disabled value="">
+                        Choose option
+                    </option>
+                    <option value="title">Title</option>
+                    <option value="severity">Severity</option>
+                    <option value="createdAt">Created At</option>
+                </select>
+
+                <label htmlFor="SortDir">Ascending </label>
+                <input
+                    disabled={!sortBy}
+                    checked={sortDir === 1}
+                    onChange={handleSortDir}
+                    type="checkbox"
+                    id="SortDir"
+                    name="SortDir"
+                />
+
                 <button>Submit</button>
             </form>
         </section>

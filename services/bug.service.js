@@ -11,7 +11,7 @@ export const bugService = {
 
 const bugs = utilService.readJsonFile('data/bug.json')
 
-function query(filterBy) {
+function query(filterBy = {}, sortBy, sortDir) {
     let bugsToReturn = bugs
     if (filterBy.title) {
         const regExp = new RegExp(filterBy.title, 'i')
@@ -38,7 +38,18 @@ function query(filterBy) {
         const startIdx = filterBy.pageIdx * PAGE_SIZE
         bugsToReturn = bugsToReturn.slice(startIdx, startIdx + PAGE_SIZE)
     }
-    return Promise.resolve(bugsToReturn)
+
+    if (sortBy === 'severity') {
+        bugsToReturn.sort((b1, b2) => (b1.severity - b2.severity) * sortDir)
+    } else if (sortBy === 'createdAt') {
+        bugsToReturn.sort((b1, b2) => (b1.createdAt - b2.createdAt) * sortDir)
+    } else if (sortBy === 'title') {
+        bugsToReturn.sort(
+            (b1, b2) => b1.title.localeCompare(b2.title) * sortDir
+        )
+    }
+    const maxPage = Math.ceil(bugsToReturn.length / PAGE_SIZE)
+    return Promise.resolve({ bugs: bugsToReturn, maxPage })
 }
 
 function getById(bugId) {

@@ -9,16 +9,22 @@ import { utilService } from '../services/util.service.js'
 export function BugIndex() {
     const [bugs, setBugs] = useState(null)
     const [filterBy, setFilterBy] = useState(bugService.getDefaultFilter())
+    const [sortBy, setSortBy] = useState('')
+    const [sortDir, setSortDir] = useState(null)
+    const [maxPage, setMaxPage] = useState(null)
     const debounceOnSetFilter = useRef(utilService.debounce(onSetFilter, 500))
 
     useEffect(() => {
         loadBugs()
-    }, [filterBy])
+    }, [filterBy, sortBy, sortDir])
 
     function loadBugs() {
         bugService
-            .query(filterBy)
-            .then((bugs) => setBugs(bugs))
+            .query(filterBy, sortBy, sortDir)
+            .then(({ bugs, maxPage: newMaxPage }) => {
+                setBugs(bugs)
+                setMaxPage(newMaxPage)
+            })
             .catch((err) => console.log('err:', err))
     }
 
@@ -26,12 +32,15 @@ export function BugIndex() {
         bugService
             .remove(bugId)
             .then(() => {
-                setBugs((prevBugs) => {
-                    return prevBugs.filter((bug) => bug._id !== bugId)
-                })
-                showSuccessMsg(`Bug successfully removed! ${bugId}`)
+                console.log('Deleted Succesfully!')
+                const bugsToUpdate = bugs.filter((bug) => bug._id !== bugId)
+                setBugs(bugsToUpdate)
+                showSuccessMsg('Bug removed')
             })
-            .catch((err) => console.log('err:', err))
+            .catch((err) => {
+                console.log('Error from onRemoveBug ->', err)
+                showErrorMsg('Cannot remove bug')
+            })
     }
 
     function onSetFilter(filterBy) {
@@ -42,11 +51,20 @@ export function BugIndex() {
         }))
     }
 
+    function onSetSortBy(sortKey) {
+        setSortBy(sortKey)
+    }
+
+    function onSetSortDir(dir) {
+        setSortDir(dir)
+    }
+
     function onChangePageIdx(diff) {
         if (isUndefined(filterBy.pageIdx)) return
         setFilterBy((prevFilter) => {
             let newPageIdx = prevFilter.pageIdx + diff
             if (newPageIdx < 0) newPageIdx = 0
+            if (newPageIdx > maxPage) newPageIdx = maxPage + 1
             return { ...prevFilter, pageIdx: newPageIdx }
         })
     }
@@ -123,8 +141,18 @@ export function BugIndex() {
                 </section>
                 <button onClick={onAddBug}>Add Bug ⛐</button>
                 <BugFilter
-                    filterBy={{ title, severity, description, label, pageIdx }}
+                    filterBy={{
+                        title,
+                        severity,
+                        description,
+                        label,
+                        pageIdx,
+                    }}
                     onSetFilter={debounceOnSetFilter.current}
+                    onSetSortBy={onSetSortBy}
+                    onSetSortDir={onSetSortDir}
+                    sortBy={sortBy}
+                    sortDir={sortDir}
                 />
                 <BugList
                     bugs={bugs}

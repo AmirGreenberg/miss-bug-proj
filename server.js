@@ -13,17 +13,27 @@ app.use(express.json())
 
 // Get Bugs (READ)
 app.get('/api/bug', (req, res) => {
+    const {
+        title = '',
+        severity = 0,
+        label = '',
+        pageIdx,
+        sortBy = '',
+        sortDir = 1,
+        description = '',
+    } = req.query
     const filterBy = {
-        title: req.query.title || '',
-        severity: req.query.severity || 0,
-        pageIdx: req.query.pageIdx,
-        description: req.query.description || '',
-        label: req.query.label || '',
+        title,
+        severity,
+        label,
+        pageIdx,
+        description,
     }
+
     bugService
-        .query(filterBy)
-        .then((bugs) => {
-            res.send(bugs)
+        .query(filterBy, sortBy, sortDir)
+        .then(({ bugs, maxPage }) => {
+            res.send({ bugs, maxPage })
         })
         .catch((err) => {
             loggerService.error('Cannot get bugs', err)
@@ -76,7 +86,6 @@ app.post('/api/bug/', (req, res) => {
         title: req.body.title,
         severity: req.body.severity,
         description: req.body.description,
-        createdAt: req.body.createdAt || Date.now(),
         labels: req.body.labels || [],
     }
 
@@ -95,7 +104,6 @@ app.put('/api/bug/', (req, res) => {
         title: req.body.title,
         severity: req.body.severity,
         description: req.body.description,
-        createdAt: req.body.createdAt || Date.now(),
         labels: req.body.labels || [],
         _id: req.body._id,
     }

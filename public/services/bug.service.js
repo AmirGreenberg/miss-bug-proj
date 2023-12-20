@@ -1,5 +1,4 @@
 import { utilService } from './util.service.js'
-// import { storageService } from './async-storage.service.js'
 
 const BUG_KEY = 'bugDB'
 const BASE_URL = '/api/bug/'
@@ -14,8 +13,13 @@ export const bugService = {
     getDefaultFilter,
 }
 
-function query(filterBy) {
-    return axios.get(BASE_URL, { params: filterBy }).then((res) => res.data)
+function query(filterBy, sortBy = 'severity', sortDir = 1) {
+    return axios
+        .get(BASE_URL, { params: { ...filterBy, sortBy, sortDir } })
+        .then((res) => {
+            console.log('res.data', res.data)
+            return res.data
+        })
 }
 
 function get(bugId) {
@@ -50,7 +54,6 @@ function getDefaultFilter() {
         severity: '',
         description: '',
         label: '',
-        createdAt: '',
         pageIdx: 0,
     }
 }
@@ -63,27 +66,27 @@ function _createBugs() {
                 title: 'Infinite Loop Detected',
                 severity: 4,
                 description: 'Amazing bug',
-                labels: ['handsome', 'tall', ],
+                labels: ['handsome', 'tall'],
                 _id: '1NF1N1T3',
             },
             {
                 title: 'Keyboard Not Found',
                 severity: 3,
                 description: 'bug 2000',
-                labels: ['stupid', 'poor', ],
+                labels: ['stupid', 'poor'],
                 _id: 'K3YB0RD',
             },
             {
                 title: '404 Coffee Not Found',
                 severity: 2,
                 description: 'bug bug bigolo',
-                labels: ['fat', 'poor', 'tall' ],
+                labels: ['fat', 'poor', 'tall'],
                 _id: 'C0FF33',
             },
             {
                 title: 'Unexpected Response',
                 description: 'boged',
-                labels: ['loyal', 'handsome', ],
+                labels: ['loyal', 'handsome'],
                 severity: 1,
                 _id: 'G0053',
             },
